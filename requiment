@@ -2,3 +2,10 @@ Django==1.11
 PyMySQL==0.9.3
 pytz==2019.3
 redis==3.3.11
+Django==1.11
+greenlet==0.4.15
+gunicorn==20.0.4
+meinheld==1.0.1
+PyMySQL==0.9.3
+pytz==2019.3
+redis==3.3.11
