@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+ 
+	<head>
+		<meta charset="UTF-8">
+		<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+		<link href="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+ 
+		<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+		<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script src="https://cdn.bootcss.com/moment.js/2.22.0/moment-with-locales.js"></script>
+		<script src="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+ 
+		<title></title>
+		<style type="text/css">
+			.myrow {
+				display: flex;
+				flex-direction: row;
+				/*margin-left:1em;*/
+			}
+			
+			.xxxx {
+				height: 2px;
+				background: #999999;
+				margin-top: 16px;
+				width: 2em;
+				margin-left: 1em;
+				margin-right: 1em;
+			}
+            .yy {
+				height: 2px;
+				/* background: #999999; */
+				margin-top: 10px;
+				width: 2em;
+				margin-left: 1em;
+				margin-right: 1em;
+			}
+			.black_overlay {
+            display: none;
+            position: absolute;
+            top: 0%;
+            left: 0%;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 1001;
+            -moz-opacity: 0.8;
+            opacity: .80;
+            filter: alpha(opacity=80);
+        }
+
+        .white_content {
+            display: none;
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            border: 16px solid lightblue;
+            background-color: white;
+            z-index: 1002;
+            overflow: auto;
+        }
+
+        .white_content_small {
+            display: none;
+            position: absolute;
+            top: 20%;
+            left: 30%;
+            width: 40%;
+            height: 50%;
+            border: 16px solid lightblue;
+            background-color: white;
+            z-index: 1002;
+            overflow: auto;
+        }
+		</style>
+	</head>
+ 
+	<body>
+        <div class="jumbotron">
+            <h1>欢迎查看log日志系统!</h1>
+            <p>系统仅实现对日志的查看、过滤筛选，作为demo演示</p>
+            <p><a class="btn btn-primary btn-lg" href="#" role="button">请选择查询条件</a></p>
+		</div>
+		
+			<div class="myrow">
+				<div class='input-group date' style="width: 14em;" id='datetimepicker1'>
+					<input type='text' class="timeInput form-control" id='start_date'/>
+					<span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+					</span>
+                </div>
+                
+				<div class="xxxx">
+                </div>
+                
+				<div class='input-group date' style="width: 14em;" id='datetimepicker2'>
+					<input type='text' class="timeInput form-control" id='end_date' />
+					<span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+					</span>
+                </div>
+                
+                <div class="yy">
+                </div>
+
+                <div class='input-group date' style="width: 14em;" id='datetimepicker2'>
+                    <input type='text' id='search' class="timeInput form-control" style="border-radius:5px" placeholder="请输入关键字"/> 
+
+                </div>
+
+                <div class="yy">
+                </div>
+
+                <div class='input-group date' style="width: 14em;" id='datetimepicker2'>
+                    <button type="button" class="btn btn-default" id='bid' >提交</button>
+                </div>
+                    
+				</div>
+            </div>
+        </div>
+       
+        <div id='div1'>
+            <table class="table table-hover">
+				<tr>
+					<td>日期</td>
+					<td>状态码</td>
+					<td>描述</td>
+				</tr>
+                {% for item in logs %}
+                <tr>
+                   <td>{{item.c_date | date:"Y-m-d H:i:s" }}</td>
+                   <td>{{item.code}}</td>
+                   <td>{{item.status}}</td>
+                </tr>
+				{% endfor %}
+			</table>
+			<nav aria-label="Page navigation">
+				<ul class="pagination">
+				  {% if logs.has_previous %}
+					  <li><a href="/logs/get/?page={{ logs.previous_page_number }}" aria-label="Previous"><span aria-hidden="true">上一页</span></a></li>
+				  {% else %}
+						  <li class="disabled"><a href="" aria-label="Previous"><span aria-hidden="true">上一页</span></a></li>
+				  {% endif %}    
+			  {#  disabled是当你的按钮不满足的时候不可以点击了#}
+			  
+				  {% for i in pageRange %}
+					   {% if current_num == i %}
+						<li class="active"><a href="?page={{ i }}">{{ i }}</a></li>
+					   {% else %}
+						<li><a href="?page={{ i }}">{{ i }}</a></li>
+					   {% endif %}
+				  {% endfor %}
+				  <li>
+					<a href="/logs/get/?page={{ logs.next_page_number }}" aria-label="Next">
+					  <span aria-hidden="true">&raquo;</span>
+					</a>
+				  </li>
+				</ul>
+			  </nav>
+		</div>
+		
+		<div id="fade" class="black_overlay"  onclick="CloseDiv('MyDiv','fade')">
+		</div>
+		<div id="MyDiv" class="white_content">
+			<div style="text-align: right; cursor: default; height: 40px;">
+				<span style="font-size: 16px;" onclick="CloseDiv('MyDiv','fade')">关闭</span>
+				
+			</div>
+			<div id='nearby_logs'>
+
+			</div>
+			
+		</div>
+
+		<script>
+			$(function() {
+				$('#form1').hide();
+				var picker1 = $('#datetimepicker1').datetimepicker({
+					format: 'YYYY-MM-DD',
+					locale: moment.locale('zh-cn'),
+					//minDate: '2016-7-1'
+				});
+				var picker2 = $('#datetimepicker2').datetimepicker({
+					format: 'YYYY-MM-DD',
+					locale: moment.locale('zh-cn')
+				});
+				//动态设置最小值
+				picker1.on('dp.change', function(e) {
+					picker2.data('DateTimePicker').minDate(e.date);
+				});
+				//动态设置最大值
+				picker2.on('dp.change', function(e) {
+					picker1.data('DateTimePicker').maxDate(e.date);
+                });
+                $("#bid").click(function(){   
+					console.log($('#search').val())
+                    $.ajax({
+                        url:"/logs/search/",
+						dataType:'json',
+						type:'POST',
+						data:{
+							'start_date':$('#start_date').val(),
+							'end_date':$('#end_date').val(),
+							'search':$('#search').val(),
+						},
+					
+                        success:function(result){
+							// console.log(result.data)
+							//拼接字符串
+							var data = JSON.parse(result.data)
+							var tables = '<table class="table table-hover"><tr><td>序号</td><td>日期</td><td>状态码</td><td>描述</td></tr>'
+							var str = '';
+							//对数据做遍历，拼接到页面显示
+							for(var i=0;i<data.length;i++){
+								// console.log(data[i])
+								
+									str += '<tr id=tr_'+data[i].pk+'>'+
+											'<td>'+ data[i].pk +'</td>'+
+											'<td>'+ data[i].fields.c_date +'</td>'+
+											'<td>'+ data[i].fields.code +'</td>'+
+											'<td>'+ data[i].fields.status +'</td>'+		
+										'</tr>';
+								
+								
+							}
+							$("#div1").html(tables + str+'</table>');
+							$('tr').click(function(){
+								var id = $(this).children('td').first().text()
+								console.log(id)
+								$('#light').show()
+								
+								$('#fade').css('display' , 'block');
+								$('#MyDiv').css('display', 'block');
+								// var bgdiv = document.getElementById(bg_div);
+								// bgdiv.style.width = document.body.scrollWidth;
+								// // bgdiv.style.height = $(document).height();
+								// $("#" + bg_div).height($(document).height());
+								//关闭弹出层
+								
+
+								$.ajax({
+									url:"/logs/nearby_logs/",
+									dataType:'json',
+									type:'POST',
+									data:{
+										'id':id,
+									},
+								
+									success:function(result){
+										var data = JSON.parse(result.data)
+										var tables = '<table class="table table-hover"><tr><td>序号</td><td>日期</td><td>状态码</td><td>描述</td></tr>'
+										var str = '';
+										//对数据做遍历，拼接到页面显示
+										for(var i=0;i<data.length;i++){
+											if (data[i].fields.status.search($('#search').val())!=-1){
+												str += '<tr  id=tr_'+data[i].pk+'>'+
+														'<td style="color:red;">'+ data[i].pk +'</td>'+
+														'<td style="color:red;">'+ data[i].fields.c_date +'</td>'+
+														'<td style="color:red;">'+ data[i].fields.code +'</td>'+
+														'<td style="color:red;">'+ data[i].fields.status +'</td>'+		
+													'</tr>';
+												}else{
+												str += '<tr id=tr_'+data[i].pk+'>'+
+															'<td>'+ data[i].pk +'</td>'+
+															'<td>'+ data[i].fields.c_date +'</td>'+
+															'<td>'+ data[i].fields.code +'</td>'+
+															'<td>'+ data[i].fields.status +'</td>'+		
+														'</tr>';
+												}
+										}
+										$("#nearby_logs").html(tables + str+'</table>');										
+									}
+								})
+							});
+                        }
+                    });
+				});
+
+			});
+			function CloseDiv(show_div, bg_div) {
+									$('#fade').css('display', 'none');
+									$('#MyDiv').css('display', 'none');
+								};
+            
+			$('#datetimepicker1').datetimepicker({
+				format: 'YYYY-MM-DD',
+				locale: moment.locale('zh-cn'),
+				defaultDate: "2018-1-1"
+            });
+            var day1 = new Date();
+			$('#datetimepicker2').datetimepicker({
+				format: 'YYYY-MM-DD',
+                locale: moment.locale('zh-cn'),
+				defaultDate: day1.setDate(day1.getDate() - 1),
+            });
+        
+		</script>
+	</body>
+ 
+</html>

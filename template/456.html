@@ -1,0 +1,51 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!-- <link rel="stylesheet" href="./css/main.css"> -->
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+    <script>
+    $(function(){
+        $('#btn').click(function(){
+            //显示弹窗的主界面
+            $('.pop_main').show()
+            //设置animate动画初始值
+            $('.pop_con').css({'top':0,'opacity':0})
+            $('.pop_con').animate({'top':'50%','opacity':1})
+        })
+ 
+        //取消按钮和关闭按钮添加事件
+        $('.cancel,.pop_title a').click(function(){
+            $('.pop_con').animate({'top':0,'opacity':0},function(){
+                //隐藏弹窗的主界面
+                $('.pop_main').hide()
+            })
+        })
+    })
+    </script>
+</head>
+<body>
+    <input type="button" value="弹出弹框" id="btn">
+    <div class="pop_main">
+        <div class="pop_con">
+            <div class="pop_title">
+                <h3>系统提示</h3>
+                <a href="#">×</a>
+            </div>
+            <div class="pop_detail">
+                <p class="pop_text">亲！确定要这么做吗？</p>
+            </div>
+            <div class="pop_footer">
+                <input type="button" value="取 消" class="cancel">
+                <input type="button" value="确 定" class="confirm">                
+            </div>
+        </div>
+        <div class="mask"></div>
+    </div>
+</body>
+</html>
+
