@@ -1,0 +1,1 @@
+LOGPATH = '/var/log/history'

@@ -3,7 +3,8 @@ from django.http import HttpResponse, JsonResponse
 import datetime
 from django.core import serializers
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+from logic import create_handle_log
+from constants import LOGPATH
 # Create your views here.
 from .models import Logs
 def create_log(request):
@@ -66,3 +67,7 @@ def nearby_logs(request):
     data = {"data":logs}
     print(data)
     return JsonResponse(data)
+
+def get_handel_log(request):
+    create_handle_log()
+    return 
