@@ -30,18 +30,25 @@ def create_handle_log(dir_path):
                 line = fp.readline()
                 while line: #一行行读取文件
                     #解析操作顺序,并写入到数据库保存
-                    h_time = line.split(';')[0].split(':')[1].strip()
-                    h_user_index = line.split(';')[0].split(':')[2]
-                    handle = line.split(';')[1]
-                    userhandle = UserHandle( h_time=datetime.datetime.fromtimestamp(eval(h_time)), 
-                                h_user_index=eval(h_user_index), 
-                                handle=handle, 
-                                h_index=i,
-                                h_user_login=user.pk
-                            )
-                    userhandle.save()
-                    i += 1
-                    line = fp.readline()
+
+                    try:
+                        h_time = line.split(';')[0].split(':')[1].strip()
+                        h_user_index = line.split(';')[0].split(':')[2]
+                        handle = line.split(';')[1]
+                        print(h_time, h_user_index, handle)
+                        userhandle = UserHandle( h_time=datetime.datetime.fromtimestamp(eval(h_time)), 
+                                    h_user_index=eval(h_user_index), 
+                                    handle=handle, 
+                                    h_index=i,
+                                    h_user_login=user.pk
+                                )
+                        userhandle.save()
+                        i += 1
+                        
+                    except:
+                        pass
+                    else:
+                        line = fp.readline()
             os.remove(new_path)
         else:
             create_handle_log(new_path)
