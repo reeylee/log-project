@@ -30,7 +30,7 @@ def create_handle_log(dir_path):
                 line = fp.readline()
                 while line: #一行行读取文件
                     #解析操作顺序,并写入到数据库保存
-
+                    print(line)
                     try:
                         h_time = line.split(';')[0].split(':')[1].strip()
                         h_user_index = line.split(';')[0].split(':')[2]
