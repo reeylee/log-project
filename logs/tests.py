@@ -1,7 +1,7 @@
 # from django.test import TestCase
 
 # Create your tests here.
-import re, os, stat
+import re, os, stat, time
 file_list = []
 def get_file(dir_path):
     path_list = os.listdir(dir_path)  # 获取当前路径下的文件名，返回List
@@ -36,4 +36,5 @@ def get_file(dir_path):
     return file_list 
 
 if __name__ == "__main__":
-    get_file('history')
+    # get_file('history')
+    print(time.localtime(1576731066))

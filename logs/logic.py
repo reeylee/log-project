@@ -1,4 +1,4 @@
-from models import SysUser, UserHandle
+from .models import UserLogin, UserHandle
 import re, os, stat, datetime
 file_list = []
 def create_handle_log(dir_path):
@@ -20,7 +20,7 @@ def create_handle_log(dir_path):
             u_datetime = '-'.join(list(re.findall(r'(\d{4})(\d{2})(\d{2})', u_date)[0])) + ' {}'.format(file.split('@')[1].split('_')[2])
             
             # 把登陆信息写入数据库并保存
-            user = SysUser(u_name=user, u_ip=u_ip, u_create=u_datetime)
+            user = UserLogin(l_user=user, l_ip=u_ip, l_time=u_datetime)
             user.save()
             
             # 修改文件权限,完成写入后删除
@@ -32,16 +32,17 @@ def create_handle_log(dir_path):
                     #解析操作顺序,并写入到数据库保存
                     h_time = line.split(';')[0].split(':')[1].strip()
                     h_user_index = line.split(';')[0].split(':')[2]
-                    handel = line.split(';')[1]
-                    userhandle = UserHandle( h_time=datetime.datetime.fromtimestamp(h_time), 
+                    handle = line.split(';')[1]
+                    userhandle = UserHandle( h_time=datetime.datetime.fromtimestamp(eval(h_time)), 
                                 h_user_index=eval(h_user_index), 
-                                handel=handel, 
-                                index=i,
-                                h_user_log=user.pk
+                                handle=handle, 
+                                h_index=i,
+                                h_user_login=user.pk
                             )
                     userhandle.save()
                     i += 1
                     line = fp.readline()
+            os.remove(new_path)
         else:
             create_handle_log(new_path)
     # return data 

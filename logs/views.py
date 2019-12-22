@@ -3,10 +3,10 @@ from django.http import HttpResponse, JsonResponse
 import datetime
 from django.core import serializers
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from logic import create_handle_log
-from constants import LOGPATH
+from .logic import create_handle_log
+from .constants import LOGPATH
 # Create your views here.
-from .models import Logs
+from .models import Logs, UserHandle, UserLogin
 def create_log(request):
     f = open("ddns.log")               # 返回一个文件对象   
     line = f.readline()               # 调用文件的 readline()方法   
@@ -42,7 +42,7 @@ def get(request):
                 pageRange = range(current_num - 5, current_num + 6)  # range求的是按钮数   如果你的按钮数小于分页数 那么就按照正常的分页数目来显示
 
     else:
-        pageRange = paginator.page_range()  # 正常分配
+        pageRange = paginator.page_range  # 正常分配
 
     return render(request, 'demo.html', locals())
 
@@ -65,9 +65,44 @@ def nearby_logs(request):
     logs = Logs.objects.filter(pk__range=(start_id, end_id))
     logs = serializers.serialize("json",logs)
     data = {"data":logs}
-    print(data)
     return JsonResponse(data)
 
-def get_handel_log(request):
-    create_handle_log()
-    return 
+def get_user_log(request):
+    create_handle_log(LOGPATH)
+    user_login = UserLogin.objects.all().order_by('-l_time')
+    paginator = Paginator(user_login, 20)  #设置每一页显示几条  创建一个panginator对象
+    try:
+        current_num = int(request.GET.get('page',1))  #当你在url内输入的?page = 页码数  显示你输入的页面数目 默认为第2页
+        logs = paginator.page(current_num)
+    except EmptyPage:
+        logs = paginator.page(1)  #当你输入的page是不存在的时候就会报错
+    print(paginator.num_pages)
+    if paginator.num_pages > 11:  # 如果分页的数目大于11
+            if current_num - 5 < 1:  # 你输入的值
+                pageRange = range(1, 11)  # 按钮数
+            elif current_num + 5 > paginator.num_pages:  # 按钮数加5大于分页数
+                pageRange = range(current_num - 5, current_num + 1)  # 显示的按钮数
+            else:
+                pageRange = range(current_num - 5, current_num + 6)  # range求的是按钮数   如果你的按钮数小于分页数 那么就按照正常的分页数目来显示
+    
+    else:
+        pageRange = paginator.page_range  # 正常分配
+
+    return render(request, 'sys_log.html', locals())
+
+def get_handle_log(request):
+    user_pk = request.POST.get('id')
+    print(user_pk)
+    user_handle = UserHandle.objects.filter(h_user_login=user_pk)
+    user_handle = serializers.serialize("json", user_handle)
+    return JsonResponse({'data':user_handle})
+def search_user(request):
+    search = request.POST.get('search')
+    start_date = request.POST.get('start_date')
+    end_date = request.POST.get('end_date') + ' 23:59:59.99999'
+    # print(end_date)
+    logs = UserLogin.objects.filter(l_time__range=(start_date, end_date)).filter(l_user=search)
+    logs = serializers.serialize("json",logs)
+    data = {"data":logs}
+
+    return JsonResponse(data)
