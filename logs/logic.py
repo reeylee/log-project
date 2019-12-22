@@ -44,12 +44,11 @@ def create_handle_log(dir_path):
                                 )
                         userhandle.save()
                         i += 1
-                        
+                        os.remove(new_path)
                     except:
-                        pass
-                    else:
-                        line = fp.readline()
-            os.remove(new_path)
+                        return
+                    
+            
         else:
             create_handle_log(new_path)
     # return data 
